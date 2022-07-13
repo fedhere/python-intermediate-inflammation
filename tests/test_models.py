@@ -28,6 +28,7 @@ def test_daily_max(test, expected):
     """Test mean function works for array of zeroes and positive integers."""
     from inflammation.models import daily_mean
     npt.assert_array_equal(daily_max(np.array(test)), np.array(expected))
+
 @pytest.mark.parametrize(
     "test, expected",
     [
@@ -93,3 +94,66 @@ def test_daily_min_string():
 
     with pytest.raises(TypeError):
         error_expected = daily_min([['Hello', 'there'], ['General', 'Kenobi']])
+
+
+@pytest.mark.parametrize(
+    "test, expected, expect_raises",
+    [
+        # other test cases here, with None for expect_raises
+        (
+            [[-1, 2, 3], [4, 5, 6], [7, 8, 9]],
+            [[0, 0.67, 1], [0.67, 0.83, 1], [0.78, 0.89, 1]],
+            ValueError,
+        ),
+        (
+            [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+            [[0.33, 0.67, 1], [0.67, 0.83, 1], [0.78, 0.89, 1]],
+            None,
+        ),
+        (
+            [[-1, 2, 3], [4, 5, 6], [7, 8, 9]],
+            [[0, 0.67, 1], [0.67, 0.83, 1], [0.78, 0.89, 1]],
+            ValueError,
+        ),
+        (
+            [[1, 2, 3], [4, 5, 6], [7, 8, 9]],
+            [[0.33, 0.67, 1], [0.67, 0.83, 1], [0.78, 0.89, 1]],
+            None,
+        ),
+    ])
+
+def test_patient_normalise(test, expected, expect_raises):
+    """Test normalisation works for arrays of one and positive integers."""
+    from inflammation.models import patient_normalise
+    if expect_raises is not None:
+        with pytest.raises(expect_raises):
+            npt.assert_almost_equal(patient_normalise(np.array(test)), np.array(expected), decimal=2)
+    else:
+        npt.assert_almost_equal(patient_normalise(np.array(test)), np.array(expected), decimal=2)
+
+@pytest.mark.parametrize(
+"test, expected",
+    [
+        # other test cases here, with None for expect_raises
+        (
+            [
+                np.array([[1., 2., 3.],
+                [4., 5., 6.]]), [ "Alice", "Bob"]],
+            [
+            {
+            'name': 'Alice',
+            'data': [1., 2., 3.],
+            },
+            {
+            'name': 'Bob',
+            'data': [4., 5., 6.],
+            },
+        ])
+    ]
+)
+
+
+def test_attach_names(test, expected):
+    from inflammation.models import attach_names
+    return attach_names(test[0], test[1])
+
