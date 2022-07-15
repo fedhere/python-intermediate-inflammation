@@ -56,15 +56,19 @@ def patient_normalise(data):
 
     """
     if not isinstance(data, np.ndarray):
-        raise TypeError('data input should be ndarray')
-    if len(data.shape) != 2:
-        raise ValueError('inflammation array should be 2-dimensional')
+        raise ValueError('data must be an numpy array')
+    if not len(data.shape) == 2:
+        raise ValueError('data must be a 2D array')
     if np.any(data < 0):
-        raise ValueError('inflammation values should be non-negative')
+        raise ValueError('Inflammation values should not be negative')
+
     max_data = np.nanmax(data, axis=1)
     with np.errstate(invalid='ignore', divide='ignore'):
         normalised = data / max_data[:, np.newaxis]
     normalised[np.isnan(normalised)] = 0
+    normalised[normalised < 0] = 0
+    print(normalised)
+
     return normalised
 
 
@@ -119,8 +123,12 @@ class Doctor(Person):
         super().__init__(name)
         self.patients = []
 
-    def add_patients(self, value):
-        assert isinstance(value, Patient), "patient mast be an instance of the Patient class"
-        self.patients.append(value)
+    def add_patient(self, patient):
+        assert isinstance(patient, Patient), "patient mast be an instance of the Patient class"
+        if patient in self.patients:
+            return
+        else:
+            self.patients.append(patient)
 
-        return self.patients
+    def __str__(self):
+        return Doctor.name, Doctor.patients
